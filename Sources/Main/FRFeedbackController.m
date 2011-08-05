@@ -22,7 +22,6 @@
 #import "FRCrashLogFinder.h"
 #import "FRSystemProfile.h"
 #import "FRConstants.h"
-#import "FRConsoleLog.h"
 
 #import "NSMutableDictionary+Additions.h"
 
@@ -47,7 +46,6 @@
 
 - (void) awakeFromNib
 {
-    [tabConsole retain];
     [tabCrash retain];
     [tabScript retain];
     [tabPreferences retain];
@@ -60,7 +58,6 @@
 {
     [type release];
 
-    [tabConsole release];
     [tabCrash release];
     [tabScript release];
     [tabPreferences release];
@@ -111,24 +108,6 @@
 }
 
 #pragma mark information gathering
-
-- (NSString*) consoleLog
-{
-    NSNumber *hours = [[[NSBundle mainBundle] infoDictionary] valueForKey:PLIST_KEY_LOGHOURS];
-
-    int h = 24;
-
-    if (hours != nil) {
-        h = [hours intValue];
-    }
-    
-    NSDate *since = [[NSCalendarDate calendarDate] dateByAddingYears:0 months:0 days:0 hours:-h minutes:0 seconds:0];
-
-    NSNumber *maximumSize = [[[NSBundle mainBundle] infoDictionary] valueForKey:PLIST_KEY_MAXCONSOLELOGSIZE];
-
-    return [FRConsoleLog logSince:since maxSize:maximumSize];
-}
-
 
 - (NSArray*) systemProfile
 {
@@ -394,9 +373,6 @@
 		[dict setValidString:[self systemProfileAsString]
 					  forKey:POST_KEY_SYSTEM];
 		
-		[dict setValidString:[consoleView string]
-					  forKey:POST_KEY_CONSOLE];
-		
 		[dict setValidString:[crashesView string]
 					  forKey:POST_KEY_CRASHES];
 		
@@ -508,7 +484,6 @@
 
     [emailLabel setStringValue:FRLocalizedString(@"Email address:", nil)];
     
-    [tabConsole setLabel:FRLocalizedString(@"Console", nil)];
     [tabCrash setLabel:FRLocalizedString(@"CrashLog", nil)];
     [tabScript setLabel:FRLocalizedString(@"Script", nil)];
     [tabPreferences setLabel:FRLocalizedString(@"Preferences", nil)];
@@ -517,9 +492,6 @@
     [sendButton setTitle:FRLocalizedString(@"Send", nil)];
     [cancelButton setTitle:FRLocalizedString(@"Cancel", nil)];
 
-    [[consoleView textContainer] setContainerSize:NSMakeSize(CGFLOAT_MAX, CGFLOAT_MAX)];
-    [[consoleView textContainer] setWidthTracksTextView:NO];
-    [consoleView setString:@""];
     [[crashesView textContainer] setContainerSize:NSMakeSize(CGFLOAT_MAX, CGFLOAT_MAX)];
     [[crashesView textContainer] setWidthTracksTextView:NO];
     [crashesView setString:@""];
@@ -550,12 +522,6 @@
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-    NSString *consoleLog = [self consoleLog];
-    if ([consoleLog length] > 0) {
-        [self performSelectorOnMainThread:@selector(addTabViewItem:) withObject:tabConsole waitUntilDone:YES];
-        [consoleView performSelectorOnMainThread:@selector(setString:) withObject:consoleLog waitUntilDone:YES];
-    }
-
     NSString *crashLog = [self crashLog];
     if ([crashLog length] > 0) {
         [self performSelectorOnMainThread:@selector(addTabViewItem:) withObject:tabCrash waitUntilDone:YES];
@@ -581,7 +547,6 @@
 
 - (void) reset
 {
-    [tabView removeTabViewItem:tabConsole];
     [tabView removeTabViewItem:tabCrash];
     [tabView removeTabViewItem:tabScript];
     [tabView removeTabViewItem:tabPreferences];

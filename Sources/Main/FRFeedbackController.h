@@ -46,14 +46,12 @@
 
     IBOutlet NSTabView *tabView;
     IBOutlet NSTabViewItem *tabSystem;
-    IBOutlet NSTabViewItem *tabConsole;
     IBOutlet NSTabViewItem *tabCrash;
     IBOutlet NSTabViewItem *tabScript;
     IBOutlet NSTabViewItem *tabPreferences;
     IBOutlet NSTabViewItem *tabException;
 
     IBOutlet NSTableView *systemView;
-    IBOutlet NSTextView *consoleView;
     IBOutlet NSTextView *crashesView;
     IBOutlet NSTextView *scriptView;
     IBOutlet NSTextView *preferencesView;
