@@ -38,53 +38,40 @@
     [super dealloc];
 }
 
-- (NSData *) generateFormData: (NSDictionary *)dict forBoundary:(NSString*)formBoundary
+- (NSData *) generateFormData: (NSDictionary *)dict
 {
-    NSString *boundary = formBoundary;
-    NSArray *keys = [dict allKeys];
-    NSMutableData *result = [[NSMutableData alloc] initWithCapacity:100];
     
-    for (NSUInteger i = 0; i < [keys count]; i++) {
-        id value = [dict valueForKey: [keys objectAtIndex: i]];
-        
-        [result appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-
-        if ([value class] != [NSURL class]) {
-            [result appendData:[[NSString stringWithFormat: @"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", [keys objectAtIndex:i]] dataUsingEncoding:NSUTF8StringEncoding]];
-            [result appendData:[[NSString stringWithFormat:@"%@",value] dataUsingEncoding:NSUTF8StringEncoding]];
-        }
-        else if ([value class] == [NSURL class] && [value isFileURL]) {
-            NSString *disposition = [NSString stringWithFormat: @"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\n", [keys objectAtIndex:i], [[value path] lastPathComponent]];
-            [result appendData: [disposition dataUsingEncoding:NSUTF8StringEncoding]];
-            
-            [result appendData:[@"Content-Type: application/octet-stream\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-            [result appendData:[NSData dataWithContentsOfFile:[value path]]];
-        }
-
-        [result appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    NSMutableString* description = [NSMutableString string];
+    
+    for( NSString* key in [dict allKeys] ) {
+        [description appendFormat:@"%@\n%@\n\n", key, [dict objectForKey:key]];
     }
-
-    [result appendData:[[NSString stringWithFormat:@"--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
     
-    return [result autorelease];
+    NSDictionary* info = [[NSBundle mainBundle] infoDictionary];
+    
+    NSString* post = [NSString stringWithFormat:@"ScoutUserName=%@&ScoutProject=%@&ScoutArea=%@&FriendlyResponse=0&Description=%@&Extra=%@", 
+                      [[info objectForKey:@"FRFeedbackReporter.ScoutUserName"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], 
+                      [[info objectForKey:@"FRFeedbackReporter.ScoutProject"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], 
+                      [[info objectForKey:@"FRFeedbackReporter.ScoutArea"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], 
+                      [NSString stringWithFormat:@"Feedback - %@", [[NSDate date] description]],
+                      [description stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    return [post dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 
 - (NSString*) post:(NSDictionary*)dict
 {
-    NSString *formBoundary = [[NSProcessInfo processInfo] globallyUniqueString];
-
-    NSData *formData = [self generateFormData:dict forBoundary:formBoundary];
+    NSData *formData = [self generateFormData:dict];
 
     NSLog(@"Posting %lu bytes to %@", (unsigned long)[formData length], target);
 
     NSMutableURLRequest *post = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:target]];
     
-    NSString *boundaryString = [NSString stringWithFormat: @"multipart/form-data; boundary=%@", formBoundary];
-    [post addValue: boundaryString forHTTPHeaderField: @"Content-Type"];
+   // [post addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField: @"Content-Type"];
     [post setHTTPMethod: @"POST"];
-    [post setHTTPBody:formData];
     [post setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+    [post setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    [post setHTTPBody:formData];
 
     NSURLResponse *response = nil;
     NSError *error = nil;
@@ -102,17 +89,15 @@
 
 - (void) postAndNotify:(NSDictionary*)dict
 {
-    NSString *formBoundary = [[NSProcessInfo processInfo] globallyUniqueString];
-
-    NSData *formData = [self generateFormData:dict forBoundary:formBoundary];
+    NSData *formData = [self generateFormData:dict ];
 
     NSLog(@"Posting %lu bytes to %@", (unsigned long)[formData length], target);
 
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:target]];
     
-    NSString *boundaryString = [NSString stringWithFormat: @"multipart/form-data; boundary=%@", formBoundary];
-    [request addValue: boundaryString forHTTPHeaderField: @"Content-Type"];
     [request setHTTPMethod: @"POST"];
+    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+    [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     [request setHTTPBody:formData];
 
     connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];

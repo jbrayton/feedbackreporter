@@ -21,10 +21,19 @@
 	<key>NSPrincipalClass</key>
 	<string>FRExceptionReportingApplication</string>
 	<key>FRFeedbackReporter.targetURL</key>
-	<string>http://vafer.org/feedback/submit.php?project=%@</string>
+	<string>https://goldenhillsoftware.fogbugz.com/scoutSubmit.asp</string>
 	<key>FRFeedbackReporter.defaultSender</key>
 	<string>firstEmail</string>
 	<key>FRFeedbackReporter.sendDetailsIsOptional</key>
 	<string>YES</string>
+
+	<key>FRFeedbackReporter.targetURL</key>
+	<string>https://goldenhillsoftware.fogbugz.com/scoutSubmit.asp</string>
+	<key>FRFeedbackReporter.ScoutUserName</key>
+	<string>John Brayton</string>
+	<key>FRFeedbackReporter.ScoutProject</key>
+	<string>CloudPull</string>
+	<key>FRFeedbackReporter.ScoutArea</key>
+	<string>AutoBugReports</string>
 </dict>
 </plist>
