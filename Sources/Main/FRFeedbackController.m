@@ -344,7 +344,10 @@
     
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	
-    [dict setValidString:[emailBox stringValue]
+    [dict setValidString:[nameField stringValue]
+				  forKey:POST_KEY_NAME];
+	
+   [dict setValidString:[emailBox stringValue]
 				  forKey:POST_KEY_EMAIL];
 	
     [dict setValidString:[messageView string]
@@ -553,13 +556,17 @@
     [tabView removeTabViewItem:tabException];
 
     ABPerson *me = [[ABAddressBook sharedAddressBook] me];
+
+    if (me) {
+        NSString* name = [NSString stringWithFormat:@"%@ %@", [me valueForProperty:kABFirstNameProperty], [me valueForProperty:kABLastNameProperty]];
+        [nameField setStringValue:name];
+    }
+    
     ABMutableMultiValue *emailAddresses = [me valueForProperty:kABEmailProperty];
 
     NSUInteger count = [emailAddresses count];
     
     [emailBox removeAllItems];
-
-    [emailBox addItemWithObjectValue:FRLocalizedString(@"anonymous", nil)];
 
     for(NSUInteger i=0; i<count; i++) {
 

@@ -34,6 +34,9 @@
 
     IBOutlet NSTextField *messageLabel;
     IBOutlet NSTextView *messageView;
+    
+    IBOutlet NSTextField* nameLabel;
+    IBOutlet NSTextField* nameField;
 
     IBOutlet NSTextField *emailLabel;
     IBOutlet NSComboBox *emailBox;
