@@ -23,7 +23,7 @@
 		9DA7D6F00DEB8E5D00C3B586 /* FRApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA7D6E30DEB8E5D00C3B586 /* FRApplication.m */; };
 		9DA7D6F10DEB8E5D00C3B586 /* FRCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DA7D6E40DEB8E5D00C3B586 /* FRCommand.h */; };
 		9DA7D6F20DEB8E5D00C3B586 /* FRCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA7D6E50DEB8E5D00C3B586 /* FRCommand.m */; };
-		9DA7D6F30DEB8E5D00C3B586 /* FRCrashLogFinder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DA7D6E60DEB8E5D00C3B586 /* FRCrashLogFinder.h */; };
+		9DA7D6F30DEB8E5D00C3B586 /* FRCrashLogFinder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DA7D6E60DEB8E5D00C3B586 /* FRCrashLogFinder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9DA7D6F40DEB8E5D00C3B586 /* FRCrashLogFinder.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA7D6E70DEB8E5D00C3B586 /* FRCrashLogFinder.m */; };
 		9DA7D6F50DEB8E5D00C3B586 /* FRFeedbackController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DA7D6E80DEB8E5D00C3B586 /* FRFeedbackController.h */; };
 		9DA7D6F60DEB8E5D00C3B586 /* FRFeedbackController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA7D6E90DEB8E5D00C3B586 /* FRFeedbackController.m */; };

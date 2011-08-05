@@ -435,37 +435,11 @@
     [indicator stopAnimation:self];
     [indicator setHidden:YES];
 
-    NSString *response = [uploader response];
-
     [uploader release], uploader = nil;
 
     [messageView setEditable:YES];
     [sendButton setEnabled:YES];
 
-    NSArray *lines = [response componentsSeparatedByString:@"\n"];
-    NSUInteger i = [lines count];
-    while(i--) {
-        NSString *line = [lines objectAtIndex:i];
-        
-        if ([line length] == 0) {
-            continue;
-        }
-        
-        if (![line hasPrefix:@"OK "]) {
-
-			NSLog (@"Failed to submit to server: %@", response);
-			
-            NSAlert *alert = [[NSAlert alloc] init];
-            [alert addButtonWithTitle:FRLocalizedString(@"OK", nil)];
-            [alert setMessageText:FRLocalizedString(@"Sorry, failed to submit your feedback to the server.", nil)];
-            [alert setInformativeText:[NSString stringWithFormat:FRLocalizedString(@"Error: %@", nil), line]];
-            [alert setAlertStyle:NSWarningAlertStyle];
-            [alert runModal];
-            [alert release];
-            
-            return;
-        }
-    }
 
     [[NSUserDefaults standardUserDefaults] setValue:[NSDate date]
                                              forKey:DEFAULTS_KEY_LASTSUBMISSIONDATE];
@@ -557,7 +531,7 @@
 
     ABPerson *me = [[ABAddressBook sharedAddressBook] me];
 
-    if (me) {
+    if ((me) && ([me valueForProperty:kABFirstNameProperty]) && ([me valueForProperty:kABLastNameProperty])) {
         NSString* name = [NSString stringWithFormat:@"%@ %@", [me valueForProperty:kABFirstNameProperty], [me valueForProperty:kABLastNameProperty]];
         [nameField setStringValue:name];
     }
