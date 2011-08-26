@@ -45,6 +45,7 @@
 #define DEFAULTS_KEY_LASTCRASHCHECKDATE @"FRFeedbackReporter.lastCrashCheckDate"
 #define DEFAULTS_KEY_LASTSUBMISSIONDATE @"FRFeedbackReporter.lastSubmissionDate"
 #define DEFAULTS_KEY_SENDEREMAIL        @"FRFeedbackReporter.sender"
+#define DEFAULTS_KEY_SENDERNAME         @"FRFeedbackReporter.sendername"
 
 
 // POST fields filled by default

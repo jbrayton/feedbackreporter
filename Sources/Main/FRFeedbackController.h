@@ -39,7 +39,7 @@
     IBOutlet NSTextField* nameField;
 
     IBOutlet NSTextField *emailLabel;
-    IBOutlet NSComboBox *emailBox;
+    IBOutlet NSTextField *emailField;
 
     IBOutlet NSButton *detailsButton;
     IBOutlet NSTextField *detailsLabel;

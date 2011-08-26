@@ -25,8 +25,6 @@
 
 #import "NSMutableDictionary+Additions.h"
 
-#import <AddressBook/ABAddressBook.h>
-#import <AddressBook/ABMultiValue.h>
 #import <SystemConfiguration/SCNetwork.h>
 #import <SystemConfiguration/SCNetworkReachability.h>
 
@@ -235,6 +233,7 @@
     }
 
     [preferences removeObjectForKey:DEFAULTS_KEY_SENDEREMAIL];
+    [preferences removeObjectForKey:DEFAULTS_KEY_SENDERNAME];
 
     if ([delegate respondsToSelector:@selector(anonymizePreferencesForFeedbackReport:)]) {
         preferences = [delegate anonymizePreferencesForFeedbackReport:preferences];
@@ -347,7 +346,7 @@
     [dict setValidString:[nameField stringValue]
 				  forKey:POST_KEY_NAME];
 	
-   [dict setValidString:[emailBox stringValue]
+   [dict setValidString:[emailField stringValue]
 				  forKey:POST_KEY_EMAIL];
 	
     [dict setValidString:[messageView string]
@@ -444,8 +443,9 @@
     [[NSUserDefaults standardUserDefaults] setValue:[NSDate date]
                                              forKey:DEFAULTS_KEY_LASTSUBMISSIONDATE];
 
-    [[NSUserDefaults standardUserDefaults] setObject:[emailBox stringValue]
+    [[NSUserDefaults standardUserDefaults] setObject:[emailField stringValue]
                                               forKey:DEFAULTS_KEY_SENDEREMAIL];
+    [[NSUserDefaults standardUserDefaults] setObject:[nameField stringValue] forKey:DEFAULTS_KEY_SENDERNAME];
 
     [self close];
 }
@@ -529,35 +529,15 @@
     [tabView removeTabViewItem:tabPreferences];
     [tabView removeTabViewItem:tabException];
 
-    ABPerson *me = [[ABAddressBook sharedAddressBook] me];
-
-    if ((me) && ([me valueForProperty:kABFirstNameProperty]) && ([me valueForProperty:kABLastNameProperty])) {
-        NSString* name = [NSString stringWithFormat:@"%@ %@", [me valueForProperty:kABFirstNameProperty], [me valueForProperty:kABLastNameProperty]];
-        [nameField setStringValue:name];
-    }
     
-    ABMutableMultiValue *emailAddresses = [me valueForProperty:kABEmailProperty];
-
-    NSUInteger count = [emailAddresses count];
-    
-    [emailBox removeAllItems];
-
-    for(NSUInteger i=0; i<count; i++) {
-
-        NSString *emailAddress = [emailAddresses valueAtIndex:i];
-
-        [emailBox addItemWithObjectValue:emailAddress];
-    }
 
     NSString *email = [[NSUserDefaults standardUserDefaults] stringForKey:DEFAULTS_KEY_SENDEREMAIL];
-
-    NSInteger found = [emailBox indexOfItemWithObjectValue:email];
-    if (found != NSNotFound) {
-        [emailBox selectItemAtIndex:found];
-	} else if ([emailBox numberOfItems] >= 2) {
-		NSString *defaultSender = [[[NSBundle mainBundle] infoDictionary] valueForKey:PLIST_KEY_DEFAULTSENDER];
-		NSUInteger idx = (defaultSender && [defaultSender isEqualToString:@"firstEmail"]) ? 1 : 0;
-		[emailBox selectItemAtIndex:idx];
+    if (email) {
+        [emailField setStringValue:email];
+    }
+    NSString* name = [[NSUserDefaults standardUserDefaults] stringForKey:DEFAULTS_KEY_SENDERNAME];
+    if (name) {
+        [nameField setStringValue:name];
     }
 
     [headingField setStringValue:@""];

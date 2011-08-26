@@ -46,67 +46,35 @@
 
 + (NSArray*) findCrashLogsSince:(NSDate*)date
 {
+    NSLog(@"findCrashLogsSince");
     NSMutableArray *files = [NSMutableArray array];
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSString* homeDir = NSHomeDirectory();
+    NSInteger libIndex = [homeDir rangeOfString:@"/Library/Containers/"].location;
+    if (libIndex != NSNotFound) {
+        homeDir = [homeDir substringToIndex:libIndex];
+    }
+    NSString* crashLogDir = [homeDir stringByAppendingPathComponent:@"Library/Logs/DiagnosticReports"];
 
-    NSArray *libraryDirectories = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask|NSUserDomainMask, FALSE);
+    NSDirectoryEnumerator *enumerator = nil;
+    NSString *file = nil;
+    
+    if ([fileManager fileExistsAtPath:crashLogDir]) {
+        enumerator  = [fileManager enumeratorAtPath:crashLogDir];
+        while ((file = [enumerator nextObject])) {
+            NSString* expectedPrefix = [[FRApplication applicationName] stringByAppendingString:@"_"];
+            if ([[file pathExtension] isEqualToString:@"crash"] && [[file stringByDeletingPathExtension] hasPrefix:expectedPrefix]) {
 
-    NSUInteger i = [libraryDirectories count];
-    while(i--) {
-        NSString* libraryDirectory = [libraryDirectories objectAtIndex:i];
-
-        NSDirectoryEnumerator *enumerator = nil;
-        NSString *file = nil;
-        
-        NSString* logDir2 = @"Logs/CrashReporter/";
-        logDir2 = [[libraryDirectory stringByAppendingPathComponent:logDir2] stringByExpandingTildeInPath];
-
-        // NSLog(@"Searching for crash files at %@", logDir2);
-
-        if ([fileManager fileExistsAtPath:logDir2]) {
-
-            enumerator  = [fileManager enumeratorAtPath:logDir2];
-            while ((file = [enumerator nextObject])) {
-
-                // NSLog(@"Checking crash file %@", file);
-				
-				NSString* expectedPrefix = [[FRApplication applicationName] stringByAppendingString:@"_"];
-                if ([[file pathExtension] isEqualToString:@"crash"] && [[file stringByDeletingPathExtension] hasPrefix:expectedPrefix]) {
-
-                    file = [[logDir2 stringByAppendingPathComponent:file] stringByExpandingTildeInPath];
-
-                    if ([self file:file isNewerThan:date]) {
-
-                        // NSLog(@"Found crash file %@", file);
-
-                        [files addObject:file];
-                    }
+                file = [crashLogDir stringByAppendingPathComponent:file];
+                if ([self file:file isNewerThan:date]) {
+                    [files addObject:file];
                 }
             }
         }
 
 
-        NSString* logDir3 = [NSString stringWithFormat: @"Logs/HangReporter/%@/", [FRApplication applicationName]];
-        logDir3 = [[libraryDirectory stringByAppendingPathComponent:logDir3] stringByExpandingTildeInPath];
-
-        // NSLog(@"Searching for hang files at %@", logDir3);
-
-        if ([fileManager fileExistsAtPath:logDir3]) {
-
-            enumerator  = [fileManager enumeratorAtPath:logDir3];
-            while ((file = [enumerator nextObject])) {
-            
-                if ([[file pathExtension] isEqualToString:@"hang"]) {
-
-                    file = [[libraryDirectory stringByAppendingPathComponent:file] stringByExpandingTildeInPath];
-
-                    if ([self file:file isNewerThan:date]) {
-                        [files addObject:file];
-                    }
-                }
-            }
-        }
     }
     
     return files;
