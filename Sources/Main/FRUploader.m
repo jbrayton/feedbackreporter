@@ -67,7 +67,6 @@
 
     NSMutableURLRequest *post = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:target]];
     
-   // [post addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField: @"Content-Type"];
     [post setHTTPMethod: @"POST"];
     [post setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     [post setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
@@ -90,9 +89,6 @@
 - (void) postAndNotify:(NSDictionary*)dict
 {
     NSData *formData = [self generateFormData:dict ];
-
-    NSLog(@"Posting %lu bytes to %@", (unsigned long)[formData length], target);
-
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:target]];
     
     [request setHTTPMethod: @"POST"];
@@ -121,15 +117,11 @@
 
 - (void) connection: (NSURLConnection *)pConnection didReceiveData: (NSData *)data
 {
-    NSLog(@"Connection received data");
-
     [responseData appendData:data];
 }
 
 - (void) connection:(NSURLConnection *)pConnection didFailWithError:(NSError *)error
 {
-    NSLog(@"Connection failed");
-    
     if ([delegate respondsToSelector:@selector(uploaderFailed:withError:)]) {
 
         [delegate performSelector:@selector(uploaderFailed:withError:) withObject:self withObject:error];
@@ -140,8 +132,6 @@
 
 - (void) connectionDidFinishLoading: (NSURLConnection *)pConnection
 {
-    // NSLog(@"Connection finished");
-
     if ([delegate respondsToSelector: @selector(uploaderFinished:)]) {
         [delegate performSelector:@selector(uploaderFinished:) withObject:self];
     }

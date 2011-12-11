@@ -46,7 +46,6 @@
 
 + (NSArray*) findCrashLogsSince:(NSDate*)date
 {
-    NSLog(@"findCrashLogsSince");
     NSMutableArray *files = [NSMutableArray array];
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
