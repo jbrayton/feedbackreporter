@@ -36,7 +36,7 @@
     NSMutableString *consoleString = [[NSMutableString alloc] init];
     NSMutableArray *consoleLines = [[NSMutableArray alloc] init];
 
-    NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
     [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
 
@@ -126,7 +126,6 @@
     }
 
     // Free data stores
-    [consoleLines release];
     for (NSUInteger i = 0; i < consoleLinesProcessed; i++) {
         free(rawConsoleLines[i][FR_CONSOLELOG_TEXT]);
         free(rawConsoleLines[i][FR_CONSOLELOG_TIME]);
@@ -134,7 +133,7 @@
     }
     free(rawConsoleLines);
 
-    return [consoleString autorelease];
+    return consoleString;
 }
 
 @end

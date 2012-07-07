@@ -44,25 +44,10 @@
 
 - (void) awakeFromNib
 {
-    [tabCrash retain];
-    [tabScript retain];
-    [tabPreferences retain];
-    [tabException retain];
 }
 
 #pragma mark Destruction
 
-- (void) dealloc
-{
-    [type release];
-
-    [tabCrash release];
-    [tabScript release];
-    [tabPreferences release];
-    [tabException release];
-    
-    [super dealloc];
-}
 
 
 #pragma mark Accessors
@@ -100,8 +85,7 @@
 - (void) setType:(NSString*)theType
 {
     if (theType != type) {
-        [type release];
-        type = [theType retain];
+        type = theType;
     }
 }
 
@@ -112,7 +96,7 @@
     static NSArray *systemProfile = nil;
 
     if (systemProfile == nil) {
-        systemProfile = [[FRSystemProfile discover] retain];
+        systemProfile = [FRSystemProfile discover];
     }
 
     return systemProfile;
@@ -212,7 +196,6 @@
         [cmd setOutput:scriptLog];
         [cmd setError:scriptLog];
         int ret = [cmd execute];
-        [cmd release];
 
         NSLog(@"Script exit code = %d", ret);
         
@@ -226,7 +209,7 @@
 
 - (NSString*) preferences
 {
-    NSMutableDictionary *preferences = [[[[NSUserDefaults standardUserDefaults] persistentDomainForName:[FRApplication applicationIdentifier]] mutableCopy] autorelease];
+    NSMutableDictionary *preferences = [[[NSUserDefaults standardUserDefaults] persistentDomainForName:[FRApplication applicationIdentifier]] mutableCopy];
     
     if (preferences == nil) {
         return @"";
@@ -295,17 +278,12 @@
         return;
     }
             
-    NSString *target = [[FRApplication feedbackURL] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] ;
+    NSString *target = @"https://secure.goldenhillsoftware.com/noindex/mail/crashreport.php";
     
     if ([[[FRFeedbackReporter sharedReporter] delegate] respondsToSelector:@selector(targetUrlForFeedbackReport)]) {
         target = [[[FRFeedbackReporter sharedReporter] delegate] targetUrlForFeedbackReport];
     }
     
-    if (target == nil) {
-        NSLog(@"You are missing the %@ key in your Info.plist!", PLIST_KEY_TARGETURL);
-        return;        
-    }
-
     NSURL *url = [NSURL URLWithString:target];
 
     SCNetworkConnectionFlags reachabilityFlags = 0;
@@ -354,6 +332,12 @@
 	
 	[dict setValidString:type
 				  forKey:POST_KEY_TYPE];
+	
+	[dict setValidString:[FRApplication applicationName]
+				  forKey:POST_APPNAME];
+	
+	[dict setValidString:[FRApplication applicationEdition]
+				  forKey:POST_EDITION];
 	
 	[dict setValidString:[FRApplication applicationLongVersion]
 				  forKey:POST_KEY_VERSION_LONG];
@@ -411,7 +395,7 @@
     [indicator stopAnimation:self];
     [indicator setHidden:YES];
 
-    [uploader release], uploader = nil;
+    uploader = nil;
     
     [messageView setEditable:YES];
     [sendButton setEnabled:YES];
@@ -422,7 +406,6 @@
     [alert setInformativeText:[NSString stringWithFormat:FRLocalizedString(@"Error: %@", nil), [error localizedDescription]]];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert runModal];
-    [alert release];
 
     [self close];
 }
@@ -434,7 +417,7 @@
     [indicator stopAnimation:self];
     [indicator setHidden:YES];
 
-    [uploader release], uploader = nil;
+    uploader = nil;
 
     [messageView setEditable:YES];
     [sendButton setEnabled:YES];
@@ -446,6 +429,15 @@
     [[NSUserDefaults standardUserDefaults] setObject:[emailField stringValue]
                                               forKey:DEFAULTS_KEY_SENDEREMAIL];
     [[NSUserDefaults standardUserDefaults] setObject:[nameField stringValue] forKey:DEFAULTS_KEY_SENDERNAME];
+
+    if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_7) {
+        NSUserNotificationCenter* ctr = [NSUserNotificationCenter defaultUserNotificationCenter];
+        NSUserNotification* not = [[NSUserNotification alloc] init];
+        [not setTitle:NSLocalizedString(@"Thank you", @"")];
+        [not setInformativeText:NSLocalizedString(@"Thank you for the CloudPull crash report.", @"")];
+        [not setHasActionButton:NO];
+        [ctr deliverNotification:not];
+    }
 
     [self close];
 }
@@ -497,29 +489,29 @@
 
 - (void) populate
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
 
-    NSString *crashLog = [self crashLog];
-    if ([crashLog length] > 0) {
-        [self performSelectorOnMainThread:@selector(addTabViewItem:) withObject:tabCrash waitUntilDone:YES];
-        [crashesView performSelectorOnMainThread:@selector(setString:) withObject:crashLog waitUntilDone:YES];
-    }
+        NSString *crashLog = [self crashLog];
+        if ([crashLog length] > 0) {
+            [self performSelectorOnMainThread:@selector(addTabViewItem:) withObject:tabCrash waitUntilDone:YES];
+            [crashesView performSelectorOnMainThread:@selector(setString:) withObject:crashLog waitUntilDone:YES];
+        }
 
-    NSString *scriptLog = [self scriptLog];
-    if ([scriptLog length] > 0) {
-        [self performSelectorOnMainThread:@selector(addTabViewItem:) withObject:tabScript waitUntilDone:YES];
-        [scriptView performSelectorOnMainThread:@selector(setString:) withObject:scriptLog waitUntilDone:YES];
-    }
+        NSString *scriptLog = [self scriptLog];
+        if ([scriptLog length] > 0) {
+            [self performSelectorOnMainThread:@selector(addTabViewItem:) withObject:tabScript waitUntilDone:YES];
+            [scriptView performSelectorOnMainThread:@selector(setString:) withObject:scriptLog waitUntilDone:YES];
+        }
 
-    NSString *preferences = [self preferences];
-    if ([preferences length] > 0) {
-        [self performSelectorOnMainThread:@selector(addTabViewItem:) withObject:tabPreferences waitUntilDone:YES];
-        [preferencesView performSelectorOnMainThread:@selector(setString:) withObject:preferences waitUntilDone:YES];
-    }
+        NSString *preferences = [self preferences];
+        if ([preferences length] > 0) {
+            [self performSelectorOnMainThread:@selector(addTabViewItem:) withObject:tabPreferences waitUntilDone:YES];
+            [preferencesView performSelectorOnMainThread:@selector(setString:) withObject:preferences waitUntilDone:YES];
+        }
 
-    [self performSelectorOnMainThread:@selector(stopSpinner) withObject:self waitUntilDone:YES];
+        [self performSelectorOnMainThread:@selector(stopSpinner) withObject:self waitUntilDone:YES];
     
-    [pool drain];
+    }
 }
 
 - (void) reset

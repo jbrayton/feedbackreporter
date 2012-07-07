@@ -34,17 +34,12 @@ BOOL terminated;
 
     terminated = NO;
 
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     while(!terminated) {
         if (![[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:100000]]) {
             break;
         }
-        [pool drain];
-        pool = [[NSAutoreleasePool alloc] init];
     }
-    [pool drain];
 
-    [dict release];
     
     NSLog(@"done");
 }
@@ -58,7 +53,6 @@ BOOL terminated;
 {
     NSLog(@"Upload failed: %@", error);
 
-    [uploader release];
 
     terminated = YES;
 }
@@ -71,7 +65,6 @@ BOOL terminated;
     
     NSLog(@"response = %@", response);
 
-    [uploader release];
 
     terminated = YES;
 }

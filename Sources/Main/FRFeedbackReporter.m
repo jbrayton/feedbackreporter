@@ -43,12 +43,6 @@
 
 #pragma mark Destruction
 
-- (void) dealloc
-{
-    [feedbackController release];
-    
-    [super dealloc];
-}
 
 #pragma mark Variable Accessors
 

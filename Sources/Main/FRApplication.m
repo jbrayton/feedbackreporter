@@ -73,6 +73,11 @@
 	return applicationName;
 }
 
++ (NSString*) applicationEdition {
+    NSString *result = [[[NSBundle mainBundle] infoDictionary] valueForKey: @"CLPEditionName"];
+	return result;
+}
+
 + (NSString*) applicationIdentifier
 {
 	// CFBundleIdentifier is not localizable.

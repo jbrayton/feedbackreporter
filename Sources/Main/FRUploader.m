@@ -31,11 +31,14 @@
     return self;
 }
 
-- (void) dealloc
-{
-    [responseData release];
-    
-    [super dealloc];
+
+- (NSString*) stringByUrlEncoding:(NSString*) argStr {
+	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(
+                                                                                 NULL,
+                                                                                 (__bridge CFStringRef)argStr,
+                                                                                 NULL,
+                                                                                 (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                                                                 kCFStringEncodingUTF8 );
 }
 
 - (NSData *) generateFormData: (NSDictionary *)dict
@@ -44,18 +47,12 @@
     NSMutableString* description = [NSMutableString string];
     
     for( NSString* key in [dict allKeys] ) {
-        [description appendFormat:@"%@\n%@\n\n", key, [dict objectForKey:key]];
+        if ([description length] != 0) {
+            [description appendString:@"&"];
+        }
+        [description appendFormat:@"%@=%@", [self stringByUrlEncoding:key], [self stringByUrlEncoding:dict[key]]];
     }
-    
-    NSDictionary* info = [[NSBundle mainBundle] infoDictionary];
-    
-    NSString* post = [NSString stringWithFormat:@"ScoutUserName=%@&ScoutProject=%@&ScoutArea=%@&FriendlyResponse=0&Description=%@&Extra=%@", 
-                      [[info objectForKey:@"FRFeedbackReporter.ScoutUserName"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], 
-                      [[info objectForKey:@"FRFeedbackReporter.ScoutProject"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], 
-                      [[info objectForKey:@"FRFeedbackReporter.ScoutArea"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], 
-                      [NSString stringWithFormat:@"Feedback - %@", [[NSDate date] description]],
-                      [description stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    return [post dataUsingEncoding:NSUTF8StringEncoding];
+    return [description dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 
@@ -82,12 +79,13 @@
         NSLog(@"Post failed. Error: %ld, Description: %@", (long)[error code], [error localizedDescription]);
     }
 
-    return [[[NSString alloc] initWithData:result
-                                  encoding:NSUTF8StringEncoding] autorelease];
+    return [[NSString alloc] initWithData:result
+                                  encoding:NSUTF8StringEncoding];
 }
 
 - (void) postAndNotify:(NSDictionary*)dict
 {
+    
     NSData *formData = [self generateFormData:dict ];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:target]];
     
@@ -95,7 +93,7 @@
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     [request setHTTPBody:formData];
-
+    
     connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
 
     if (connection != nil) {
@@ -127,7 +125,6 @@
         [delegate performSelector:@selector(uploaderFailed:withError:) withObject:self withObject:error];
     }
         
-    [connection autorelease];
 }
 
 - (void) connectionDidFinishLoading: (NSURLConnection *)pConnection
@@ -136,20 +133,19 @@
         [delegate performSelector:@selector(uploaderFinished:) withObject:self];
     }
     
-    [connection autorelease];
 }
 
 
 - (void) cancel
 {
     [connection cancel];
-    [connection autorelease], connection = nil;
+    connection = nil;
 }
 
 - (NSString*) response
 {
-    return [[[NSString alloc] initWithData:responseData
-                                  encoding:NSUTF8StringEncoding] autorelease];
+    return [[NSString alloc] initWithData:responseData
+                                  encoding:NSUTF8StringEncoding];
 }
 
 @end

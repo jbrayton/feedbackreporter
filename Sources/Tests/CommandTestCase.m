@@ -35,10 +35,10 @@
     STAssertTrue([out length] > 0, @"Found no output on stdout");
     STAssertTrue([err length] == 0, @"Found output on stderr");
 
-    [err release], err = nil;
-    [out release], out = nil;
+    err = nil;
+    out = nil;
     
-    [cmd release], cmd = nil;
+    cmd = nil;
 }
 
 @end
