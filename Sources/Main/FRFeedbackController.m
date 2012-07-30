@@ -434,7 +434,7 @@
         NSUserNotificationCenter* ctr = [NSUserNotificationCenter defaultUserNotificationCenter];
         NSUserNotification* not = [[NSUserNotification alloc] init];
         [not setTitle:NSLocalizedString(@"Thank you", @"")];
-        [not setInformativeText:NSLocalizedString(@"Thank you for the CloudPull crash report.", @"")];
+        [not setInformativeText:NSLocalizedString(@"Thank you for the crash report.", @"")];
         [not setHasActionButton:NO];
         [ctr deliverNotification:not];
     }
