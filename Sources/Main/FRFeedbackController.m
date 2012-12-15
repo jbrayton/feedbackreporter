@@ -44,6 +44,14 @@
 
 - (void) awakeFromNib
 {
+    NSString* name = NSFullUserName();
+    if (name) {
+        [nameField setStringValue:name];
+    }
+    NSString* email = [[NSUserDefaults standardUserDefaults] stringForKey:@"GHEmailAddress"];
+    if (email) {
+        [emailField setStringValue:email];
+    }
 }
 
 #pragma mark Destruction
@@ -370,7 +378,11 @@
 		
 		[dict setValidString:[exceptionView string]
 					  forKey:POST_KEY_EXCEPTION];
-	}	
+	}
+    
+    if ([emailField stringValue]) {
+        [[NSUserDefaults standardUserDefaults] setObject:[emailField stringValue] forKey:@"GHEmailAddress"];
+    }
     
     NSLog(@"Sending feedback to %@", target);
     

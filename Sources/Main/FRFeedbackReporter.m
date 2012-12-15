@@ -130,7 +130,7 @@
             [controller setType:FR_CRASH];
 
             [controller setDelegate:delegate];
-
+            
             [controller showWindow:self];
 
         }
